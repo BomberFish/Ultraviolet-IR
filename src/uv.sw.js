@@ -528,12 +528,14 @@ function errorTemplate(
 
     return (
         '<!DOCTYPE html>' +
-        '<html>' +
+        '<html lang="en">' +
         '<head>' +
         "<meta charset='utf-8' />" +
         '<title>Error</title>' +
+        '<link rel="stylesheet" href="/index.css" />' +
+        '<script src="/prefs.js"></script>' +
         '</head>' +
-        '<body>' +
+        '<body class="auto">' +
         "<h1 id='errorTitle'></h1>" +
         '<hr />' +
         '<p>Failed to load <b id="fetchedURL"></b></p>' +
@@ -557,9 +559,9 @@ function errorTemplate(
         '<li>Updating Ultraviolet</li>' +
         '<li>Troubleshooting the error on the <a href="https://github.com/titaniumnetwork-dev/Ultraviolet" target="_blank">GitHub repository</a></li>' +
         '</ul>' +
-        '<button id="reload">Reload</button>' +
+        '<button class="btn primary" id="reload">Reload</button>' +
         '<hr />' +
-        '<p><i>Ultraviolet v<span id="uvVersion"></span></i></p>' +
+        '<p><i>Ultraviolet-IR v<span id="uvVersion"></span></i></p>' +
         `<script src="${
             'data:application/javascript,' + encodeURIComponent(script)
         }"></script>` +

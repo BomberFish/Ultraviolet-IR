@@ -29,8 +29,8 @@ const emptyMethods = ['GET', 'HEAD'];
 class UVServiceWorker extends Ultraviolet.EventEmitter {
     constructor(config = __uv$config) {
         super();
-        if (!config.bare) config.bare = '/bare/';
-        if (!config.prefix) config.prefix = '/service/';
+        if (!config.bare) config.bare = 'https://backend.infrared.bomberfish.ca/';
+        if (!config.prefix) config.prefix = '/uv/';
         this.config = config;
         const addresses = (
             Array.isArray(config.bare) ? config.bare : [config.bare]

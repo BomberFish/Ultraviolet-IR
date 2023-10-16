@@ -47,7 +47,7 @@ class Ultraviolet {
      * @param {UVConfig} [options]
      */
     constructor(options = {}) {
-        this.prefix = options.prefix || '/service/';
+        this.prefix = options.prefix || '/uv/service/';
         //this.urlRegex = /^(#|about:|data:|mailto:|javascript:)/;
         this.urlRegex = /^(#|about:|data:|mailto:)/;
         this.rewriteUrl = options.rewriteUrl || this.rewriteUrl;

@@ -1,6 +1,5 @@
 const Ultraviolet: typeof import('./src/rewrite/index').default;
 const UVClient: typeof import('./src/client/index').default;
-
 export type UltravioletCtor = typeof Ultraviolet;
 export type UVClientCtor = typeof UVClient;
 
@@ -16,16 +15,21 @@ type Coded = string;
 export type UVEncode = (input: Coded) => string;
 
 /**
- * The URL encoder.
+ * The URL encoder.     
  * Decoders will have to decode the input first using decodeURLComponent.
  */
 export type UVDecode = (input: Coded) => string;
 
+
+export type MiddlewareFunction = (request: Request) => Request | Response;
+export type InjectFunction = (url: URL ) => string;
 /**
  * The Ultraviolet configuration object.
  * This interface defines the configuration options for the Ultraviolet library.
  */
 export interface UVConfig {
+    middleware?: MiddlewareFunction;
+    inject?: InjectFunction;
     /**
      * The Bare server(s) to use.
      * If an array is specified, the service worker will randomly select a server to use.
@@ -101,4 +105,5 @@ export interface UVConfig {
      * @defaultValue `Ultraviolet.codec.xor.decode`
      */
     decodeUrl?: UVDecode;
+
 }

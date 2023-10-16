@@ -6,7 +6,6 @@
  * @type {import('../uv').UltravioletCtor}
  */
 const Ultraviolet = self.Ultraviolet;
-
 const cspHeaders = [
     'cross-origin-embedder-policy',
     'cross-origin-opener-policy',
@@ -125,7 +124,32 @@ class UVServiceWorker extends Ultraviolet.EventEmitter {
                 ? 'blob:' + location.origin + requestCtx.url.pathname
                 : requestCtx.url;
 
-            const response = await this.bareClient.fetch(fetchedURL, {
+            let Barereq = new Request(fetchedURL, {
+                headers: requestCtx.headers,
+                method: requestCtx.method,
+                body: requestCtx.body,
+                credentials: requestCtx.credentials,
+                mode:
+                    location.origin !== requestCtx.address.origin
+                        ? 'cors'
+                        : requestCtx.mode,
+                cache: requestCtx.cache,
+                redirect: requestCtx.redirect,
+            });
+
+            if (typeof this.config.middleware === 'function') {
+                const middleware = this.config.middleware(Barereq);
+
+                if (middleware instanceof Response) {
+                    return middleware;
+                } else if (middleware instanceof Request) {
+                    // The middleware returned a modified request.
+                    // You can continue processing the modified request.
+                    Barereq = middleware;
+                }
+            }
+
+            const response = await this.bareClient.fetch(Barereq, {
                 headers: requestCtx.headers,
                 method: requestCtx.method,
                 body: requestCtx.body,
@@ -139,6 +163,7 @@ class UVServiceWorker extends Ultraviolet.EventEmitter {
             });
 
             const responseCtx = new ResponseContext(requestCtx, response);
+
             const resEvent = new HookEvent(responseCtx, null, null);
 
             this.emit('beforemod', resEvent);
@@ -239,8 +264,33 @@ class UVServiceWorker extends Ultraviolet.EventEmitter {
                                 responseCtx.headers['content-type'] || ''
                             )
                         ) {
+                            let modifiedResponse = await response.text();
+
+                            if (typeof this.config.inject === 'function') {
+                                const headPosition =
+                                    modifiedResponse.indexOf('</head>');
+                                const upperHead =
+                                    modifiedResponse.indexOf('</HEAD>');
+                                // const bodyPosition = modifiedResponse.indexOf('</body>');
+                                // const upperBody = modifiedResponse.indexOf('</BODY>');
+
+                                const inject = await this.config.inject(
+                                    new URL(fetchedURL)
+                                );
+
+                                if (headPosition !== -1 || upperHead !== -1) {
+                                    // Create a modified copy of responseBody
+                                    modifiedResponse =
+                                        modifiedResponse.slice(
+                                            0,
+                                            headPosition
+                                        ) +
+                                        `${await inject}` +
+                                        modifiedResponse.slice(headPosition);
+                                }
+                            }
                             responseCtx.body = ultraviolet.rewriteHtml(
-                                await response.text(),
+                                modifiedResponse,
                                 {
                                     document: true,
                                     injectHead: ultraviolet.createHtmlInject(
@@ -273,7 +323,6 @@ class UVServiceWorker extends Ultraviolet.EventEmitter {
 
             this.emit('response', resEvent);
             if (resEvent.intercepted) return resEvent.returnValue;
-
             return new Response(responseCtx.body, {
                 headers: responseCtx.headers,
                 status: responseCtx.status,

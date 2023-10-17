@@ -11,19 +11,19 @@ const isDevelopment = process.argv.includes('--dev');
 await rimraf('dist');
 await mkdir('dist');
 
-// don't compile these files
 await copyFile('src/sw.js', 'dist/sw.js');
-await copyFile('src/uv.config.js', 'dist/uv.config.js');
+// no need for this, ir alr has it
+// await copyFile('src/uv.config.js', 'dist/uv.config.js');
 
 await build({
     platform: 'browser',
     sourcemap: true,
     minify: !isDevelopment,
     entryPoints: {
-        'uv.bundle': './src/rewrite/index.js',
-        'uv.client': './src/client/index.js',
-        'uv.handler': './src/uv.handler.js',
-        'uv.sw': './src/uv.sw.js',
+        'ir.bundle': './src/rewrite/index.js',
+        'ir.client': './src/client/index.js',
+        'ir.handler': './src/uv.handler.js',
+        'ir.sw': './src/uv.sw.js',
     },
     define: {
         'process.env.ULTRAVIOLET_VERSION': JSON.stringify(
